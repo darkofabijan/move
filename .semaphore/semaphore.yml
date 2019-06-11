@@ -53,4 +53,4 @@ promotions:
   - name: "Deploy to sandbox"
     pipeline_file: sandbox.yml
   - name: "Deploy to production"
-    pipeline_file: production.yml    
+    pipeline_file: prod.yml    
