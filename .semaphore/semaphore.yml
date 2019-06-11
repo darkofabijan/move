@@ -12,10 +12,14 @@ agent:
       image: postgres:9.6
       env_vars:
         - name: POSTGRES_PASSWORD
-          value: keyboard-cat
+          value: ""
+        - name: POSTGRES_USER
+          value: split
+        - name: POSTGRES_DB
+          value: split_test
 
 blocks:
-  - name: Setup
+  - name: RSpec
     task:
       env_vars:
           - name: RAILS_ENV
@@ -38,7 +42,14 @@ blocks:
             #- cp .env.test .env
             #- bundle exec rake db:schema:load             
             #- gem install semaphore_test_boosters
-      
+            
+      epilogue:
+        always:
+          commands: 
+            - mkdir coverage_results
+            - cp -R coverage/.resultset.json coverage_results/.resultset-${JOB}.json
+            - cache store coverage-$SEMAPHORE_PIPELINE_ID-${JOB} coverage_results/
+          
       jobs:
         - name: RSpec
           matrix:
@@ -47,6 +58,37 @@ blocks:
           commands:
             #- rspec_booster --job $JOB/18
             - echo "Boosters"
+            - mkdir coverage
+            - echo "report $JOB" > coverage/.resultset.json
+
+  - name: Coverage & Breakman & Rubocop
+    task:
+      env_vars:
+          - name: RAILS_ENV
+            value: test
+          - name: RACK_ENV
+            value: test          
+          - name: SKIP_COVERAGE_CHECK
+            value: "true"
+      prologue:
+          commands:
+            - checkout
+            #- cache restore gems-$SEMAPHORE_GIT_BRANCH-$(checksum Gemfile.lock),gems-$SEMAPHORE_GIT_BRANCH-,gems-master-
+            #- bundle install --deployment -j 4 --path vendor/bundle
+            #- cache store gems-$SEMAPHORE_GIT_BRANCH-$(checksum Gemfile.lock) vendor/bundle
+      
+      jobs:
+        - name: Breakman
+          commands:
+            - echo "bundle exec brakeman -z"
+            
+        - name: rubocop
+          commands:
+            - echo "bundle exec rubocop"
+      
+        - name: Merge Coverage
+          commands:
+            - echo "Merge coverage"
 
 
 promotions:
