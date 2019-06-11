@@ -11,7 +11,15 @@ agent:
 blocks:
   - name: Deploy
     task:
-      commands:
-        - checkout
-        - echo "Deploying..."
+      secrets:
+        - name: prod-aws
+      jobs:
+        - name: Deploy
+          commands:
+            - env | grep "PROD_AWS"
+            - checkout
+            #- cache restore gems-$SEMAPHORE_GIT_BRANCH-$(checksum Gemfile.lock),gems-$SEMAPHORE_GIT_BRANCH-,gems-master-
+            #- bundle install --deployment -j 4 --path vendor/bundle          
+            #- bundle exec bin/split.rb deploy -a sandbox -i $PROD_AWS_ACCESS_KEY_ID -k $PROD_AWS_SECRET_ACCESS_KEY
+            - echo "Deploy"
 
