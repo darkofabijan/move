@@ -11,8 +11,7 @@ agent:
 blocks:
   - name: Deploy
     task:
-      prologue:
-          commands:
-            - checkout
-            - echo "Deploying..."
+      commands:
+        - checkout
+        - echo "Deploying..."
 
