@@ -92,7 +92,7 @@ blocks:
             - for i in {1..18} do; cache restore coverage-$SEMAPHORE_PIPELINE_ID-${JOB}; done
             - ls -lah
             - ls -lah coverage_results
-            - #RUN_COVERAGE=true bundle exec rake simplecov:report_coverage
+            # - RUN_COVERAGE=true bundle exec rake simplecov:report_coverage
 
 
 promotions:
