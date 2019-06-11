@@ -49,4 +49,8 @@ blocks:
             - echo "Boosters"
 
 
-
+promotions:
+  - name: "Deploy to sandbox"
+    pipeline_file: sandbox.yml
+  - name: "Deploy to production"
+    pipeline_file: production.yml    
