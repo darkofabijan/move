@@ -1,0 +1,52 @@
+version: v1.0
+name: Demo Rails 5 app
+
+agent:
+  machine:
+    type: e1-standard-2
+  containers:
+    - name: main
+      image: semaphoreci/ruby:2.6-node-browsers
+
+    - name: db
+      image: postgres:9.6
+      env_vars:
+        - name: POSTGRES_PASSWORD
+          value: keyboard-cat
+
+blocks:
+  - name: Setup
+    task:
+      env_vars:
+          - name: RAILS_ENV
+            value: test
+          - name: RACK_ENV
+            value: test          
+          - name: RSPEC_RETRY_RETRY_COUNT
+            value: "2"
+          - name: SKIP_COVERAGE_CHECK
+            value: "true"
+      prologue:
+          commands:
+            - checkout
+            #- cache restore gems-$SEMAPHORE_GIT_BRANCH-$(checksum Gemfile.lock),gems-$SEMAPHORE_GIT_BRANCH-,gems-master-
+            #- bundle install --deployment -j 4 --path vendor/bundle
+            #- cache store gems-$SEMAPHORE_GIT_BRANCH-$(checksum Gemfile.lock) vendor/bundle
+            #- cache restore yarn-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),yarn-$SEMAPHORE_GIT_BRANCH,yarn-master
+            #- yarn install --cache-folder .cache/yarn
+            #- cache store yarn-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock) .cache/yarn
+            #- cp .env.test .env
+            #- bundle exec rake db:schema:load             
+            #- gem install semaphore_test_boosters
+      
+      jobs:
+        - name: RSpec
+          matrix:
+          - env_var: JOB
+            values: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18"]
+          commands:
+            #- rspec_booster --job $JOB/18
+            - echo "Boosters"
+
+
+
