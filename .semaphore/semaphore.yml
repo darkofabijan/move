@@ -6,7 +6,6 @@ global_job_config:
     commands:
       - wget https://github.com/semaphoreci/artifact/releases/download/v0.1.3/artifact_Linux_x86_64.tar.gz
       - tar xzf artifact_Linux_x86_64.tar.gz
-      - echo "Hello Artifacts" > README.md
       - sudo mv artifact /usr/bin/
 
 agent:
@@ -54,9 +53,10 @@ blocks:
       epilogue:
         always:
           commands:
-            - mkdir coverage_results
-            - cp -R coverage/.resultset.json coverage_results/.resultset-${JOB}.json
-            - cache store coverage-$SEMAPHORE_PIPELINE_ID-${JOB} coverage_results/
+            - artifact push workflow coverage/.resultset.json --destination coverage_results/$JOB.json
+            #- cp -R coverage/.resultset.json coverage_results/.resultset-${JOB}.json
+            #- mkdir coverage_results
+            #- cache store coverage-$SEMAPHORE_PIPELINE_ID-${JOB} coverage_results/
 
       jobs:
         - name: RSpec
