@@ -54,9 +54,6 @@ blocks:
         always:
           commands:
             - artifact push workflow coverage/.resultset.json --destination coverage_results/$JOB.json
-            #- cp -R coverage/.resultset.json coverage_results/.resultset-${JOB}.json
-            #- mkdir coverage_results
-            #- cache store coverage-$SEMAPHORE_PIPELINE_ID-${JOB} coverage_results/
 
       jobs:
         - name: RSpec
@@ -97,12 +94,12 @@ blocks:
         - name: Merge Coverage
           commands:
             - echo "Merge coverage"
-            - for i in {1..18}; do cache restore coverage-$SEMAPHORE_PIPELINE_ID-$i; done
-            - ls -lah
+            - artifact pull workflow coverage_results
             - ls -lah coverage_results
-            - echo "Hello World" > index.html
-            - artifact push workflow index.html
             # - RUN_COVERAGE=true bundle exec rake simplecov:report_coverage
+            # rake task about generates e.g. index.html file
+            - echo "My coverage report" > index.html
+            - artifact push workflow index.html --destination coverage-report.html
 
 
 promotions:
