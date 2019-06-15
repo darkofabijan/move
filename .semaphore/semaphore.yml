@@ -103,7 +103,7 @@ blocks:
 
 
 promotions:
-  - name: "Deploy to sandbox"
+  - name: "Deploy to Sandbox"
     pipeline_file: sandbox.yml
-  - name: "Deploy to production"
+  - name: "Deploy to Production"
     pipeline_file: prod.yml
