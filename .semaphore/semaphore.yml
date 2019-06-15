@@ -97,7 +97,7 @@ blocks:
             - artifact pull workflow coverage_results
             - ls -lah coverage_results
             # - RUN_COVERAGE=true bundle exec rake simplecov:report_coverage
-            # rake task about generates e.g. index.html file
+            # rake task about generates e.g. index.html file.
             - echo "My coverage report" > index.html
             - artifact push workflow index.html --destination coverage-report.html
 
