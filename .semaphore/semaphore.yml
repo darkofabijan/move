@@ -1,6 +1,13 @@
 version: v1.0
 name: Test pipeline
 
+global_job_config:
+  prologue:
+    commands:
+      - wget https://github.com/semaphoreci/artifact/releases/download/v0.1.3/artifact_Linux_x86_64.tar.gz
+      - tar xzf artifact_Linux_x86_64.tar.gz
+      - sudo mv artifact /usr/bin/
+
 agent:
   machine:
     type: e1-standard-2
@@ -25,7 +32,7 @@ blocks:
           - name: RAILS_ENV
             value: test
           - name: RACK_ENV
-            value: test          
+            value: test
           - name: RSPEC_RETRY_RETRY_COUNT
             value: "2"
           - name: SKIP_COVERAGE_CHECK
@@ -40,16 +47,14 @@ blocks:
             #- yarn install --cache-folder .cache/yarn
             #- cache store yarn-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock) .cache/yarn
             #- cp .env.test .env
-            #- bundle exec rake db:schema:load             
+            #- bundle exec rake db:schema:load
             #- gem install semaphore_test_boosters
-            
+
       epilogue:
         always:
-          commands: 
-            - mkdir coverage_results
-            - cp -R coverage/.resultset.json coverage_results/.resultset-${JOB}.json
-            - cache store coverage-$SEMAPHORE_PIPELINE_ID-${JOB} coverage_results/
-          
+          commands:
+            - artifact push workflow coverage/.resultset.json --destination coverage_results/$JOB.json
+
       jobs:
         - name: RSpec
           matrix:
@@ -67,7 +72,7 @@ blocks:
           - name: RAILS_ENV
             value: test
           - name: RACK_ENV
-            value: test          
+            value: test
           - name: SKIP_COVERAGE_CHECK
             value: "true"
       prologue:
@@ -76,27 +81,29 @@ blocks:
             #- cache restore gems-$SEMAPHORE_GIT_BRANCH-$(checksum Gemfile.lock),gems-$SEMAPHORE_GIT_BRANCH-,gems-master-
             #- bundle install --deployment -j 4 --path vendor/bundle
             #- cache store gems-$SEMAPHORE_GIT_BRANCH-$(checksum Gemfile.lock) vendor/bundle
-      
+
       jobs:
         - name: Breakman
           commands:
             - echo "bundle exec brakeman -z"
-            
+
         - name: rubocop
           commands:
             - echo "bundle exec rubocop"
-      
+
         - name: Merge Coverage
           commands:
             - echo "Merge coverage"
-            - for i in {1..18}; do cache restore coverage-$SEMAPHORE_PIPELINE_ID-$i; done
-            - ls -lah
+            - artifact pull workflow coverage_results
             - ls -lah coverage_results
             # - RUN_COVERAGE=true bundle exec rake simplecov:report_coverage
+            # rake task about generates e.g. index.html file
+            - echo "My coverage report" > index.html
+            - artifact push workflow index.html --destination coverage-report.html
 
 
 promotions:
   - name: "Deploy to sandbox"
     pipeline_file: sandbox.yml
   - name: "Deploy to production"
-    pipeline_file: prod.yml    
+    pipeline_file: prod.yml
